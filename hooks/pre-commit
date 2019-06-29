@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cargo fmt
+
+
+cargo test
+
+exit $?
