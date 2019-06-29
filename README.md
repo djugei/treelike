@@ -5,10 +5,11 @@
 This crate tries to provide a common trait for all kinds of trees. Two reasons for that:
 
 ## Interoperability
-Using a common trait allows third parties to switch out tree implementations seamlessly
+Using a common trait allows third parties to switch tree implementations seamlessly. It also
+enables further abstractions to be built over for trees.
 
 ## Automatisation
-If you are implementing a tree `Treelike` only requires you to implement two methods on
+If you are implementing a tree, `Treelike` only requires you to implement two methods on
 your nodes, `content` to return its contents and `children` to list its children.
 
 Many kinds of traversals and searches are then provided for free. I found myself implementing
