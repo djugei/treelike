@@ -8,9 +8,8 @@ This crate tries to provide a common trait for all kinds of trees. Two reasons f
 Using a common trait allows third parties to switch out tree implementations seamlessly
 
 ## Automatisation
-If you are implementing a tree this [Treelike] only requires you to implement two methods on
-your nodes, [content][Treelike::content] to return its contents and [children][Treelike::children]
-to list its children.
+If you are implementing a tree this `Treelike` only requires you to implement two methods on
+your nodes, `content` to return its contents and `children` to list its children.
 
 Many kinds of traversals and searches are then provided for free. I found myself implementing
 the same methods over and over on different trees, so that is my main motivation.
@@ -33,5 +32,5 @@ Please install rustfmt and cargo-sync-readme so these checks can be run.
     rustup component add rustfmt
     cargo install cargo-sync-readme
 
-Please execute cargo-sync-readme when you change the top-level-documentation.
-Please run cargo fmt whenever you change code. If possible configure your editor to do so for you.
+Please execute `cargo-sync-readme` when you change the top-level-documentation.
+Please run `cargo fmt` whenever you change code. If possible configure your editor to do so for you.

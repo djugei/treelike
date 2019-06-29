@@ -6,9 +6,8 @@
 //! Using a common trait allows third parties to switch out tree implementations seamlessly
 //!
 //! ## Automatisation
-//! If you are implementing a tree this [Treelike] only requires you to implement two methods on
-//! your nodes, [content][Treelike::content] to return its contents and [children][Treelike::children]
-//! to list its children.
+//! If you are implementing a tree this `Treelike` only requires you to implement two methods on
+//! your nodes, `content` to return its contents and `children` to list its children.
 //!
 //! Many kinds of traversals and searches are then provided for free. I found myself implementing
 //! the same methods over and over on different trees, so that is my main motivation.
