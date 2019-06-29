@@ -102,8 +102,8 @@ pub trait Treelike: Sized + Copy {
 	/// Pass () as filter to just visit all children.
 	///
 	/// ```
-	/// # use tree_trait::example::LinTree;
-	/// # use tree_trait::Treelike;
+	/// # use treelike::example::LinTree;
+	/// # use treelike::Treelike;
 	/// # let base = [3, 4, 5, 6, 7];
 	/// # let node = LinTree::new(0, &base);
 	/// node.callback_dft(|content, depth| {dbg!((content, depth));}, ())
@@ -113,8 +113,8 @@ pub trait Treelike: Sized + Copy {
 	/// For example stop at depth 1 and nodes with content 4:
 	///
 	/// ```
-	/// # use tree_trait::example::LinTree;
-	/// # use tree_trait::Treelike;
+	/// # use treelike::example::LinTree;
+	/// # use treelike::Treelike;
 	/// # let base = [3usize, 4, 5, 6, 7];
 	/// # let node = LinTree::new(0, &base);
 	/// node.callback_dft(
@@ -149,8 +149,8 @@ pub trait Treelike: Sized + Copy {
 	/// Traverses the tree breadth-first, i.e. one depth-layer at a time.
 	/// # Example
 	/// ```
-	/// # use tree_trait::example::LinTree;
-	/// # use tree_trait::Treelike;
+	/// # use treelike::example::LinTree;
+	/// # use treelike::Treelike;
 	/// let base = [3, 4, 5, 6, 7];
 	/// let node = LinTree::new(0, &base);
 	///

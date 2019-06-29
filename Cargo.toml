@@ -1,8 +1,11 @@
 [package]
-name = "tree_trait"
+name = "treelike"
 version = "0.1.0"
 authors = ["djugei <ddjugei@gmail.com>"]
 edition = "2018"
+description = "A trait to abstract over trees, and simplify implementing them, all in one handy crate"
+license = "Apache-2.0"
+repository = "https://github.com/djugei/treelike"
 
 [dependencies]
 
