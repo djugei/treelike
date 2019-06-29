@@ -1,5 +1,24 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+//! This crate tries to provide a common trait for all kinds of trees. Two reasons for that:
+//!
+//! ## Interoperability
+//! Using a common trait allows third parties to switch out tree implementations seamlessly
+//!
+//! ## Automatisation
+//! If you are implementing a tree this [Treelike] only requires you to implement two methods on
+//! your nodes, [content][Treelike::content] to return its contents and [children][Treelike::children]
+//! to list its children.
+//!
+//! Many kinds of traversals and searches are then provided for free. I found myself implementing
+//! the same methods over and over on different trees, so that is my main motivation.
+//!
+//!
+//! # no_std
+//! This crate tries to stay no_std compatible, but provides more functionality if allocations are
+//! available. The relevant types and methods contain a no_std section to discuss functionality and
+//! limitations.
+
 pub mod example;
 
 /// The main Trait of the crate.
