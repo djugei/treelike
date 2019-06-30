@@ -10,7 +10,7 @@ use crate::Treelike;
 /// Also shows a case where Treelike is implemented on the node itself, and not a reference to one.
 /// An important pitfall for that is that you may need to manually implement [Copy] and [Clone] as
 /// deriving them places [Copy]/[Clone] bounds on all type parameters (`T` in this case), even
-/// though that might not be nescesary due to the content not being stored inline, and therefore
+/// though that might not be necessary due to the content not being stored in-line, and therefore
 /// not being [Copy]/[Clone]d.
 #[derive(Debug)]
 pub struct LinTree<'a, T> {
@@ -62,7 +62,7 @@ impl<'a, T: core::fmt::Debug> Treelike for LinTree<'a, T> {
 	}
 
 	/// This is also an example of overriding the [Treelike]s default implementations where
-	/// nescesary. LinTree can provide breadth-first traversal with a simple iteration
+	/// necessary. LinTree can provide breadth-first traversal with a simple iteration
 	fn callback_bft<CB: FnMut(Self::Content, usize)>(self, mut callback: CB) {
 		let usize_bits = (std::mem::size_of::<usize>() * 8) as u32;
 		for (i, content) in self.slice.iter().enumerate().skip(self.index) {

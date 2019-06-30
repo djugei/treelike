@@ -8,7 +8,7 @@ This crate tries to provide a common trait for all kinds of trees. Two reasons f
 Using a common trait allows third parties to switch tree implementations seamlessly. It also
 enables further abstractions to be built over for trees.
 
-## Automatisation
+## Automation
 If you are implementing a tree, `Treelike` only requires you to implement two methods on
 your nodes, `content` to return its contents and `children` to list its children.
 
@@ -24,7 +24,7 @@ limitations.
 <!-- cargo-sync-readme end -->
 
 # Contributing
-Please symlink the hooks to your local .git/hooks/ directory to run some automatic checks before commiting.
+Please symlink the hooks to your local .git/hooks/ directory to run some automatic checks before committing.
 
     ln -s ../../hooks/pre-commit .git/hooks/
 

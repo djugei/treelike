@@ -1,6 +1,6 @@
 use crate::Treelike;
 
-/// A basic binary tree that stores its children in [Box]es on the heap.
+/// A basic binary tree that stores its children in [Box]-es on the heap.
 /// Used to show off trees that own the complete data and don't rely on any backing storage.
 pub struct OwningBinaryTree<Content> {
 	content: Content,

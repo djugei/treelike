@@ -6,7 +6,7 @@
 //! Using a common trait allows third parties to switch tree implementations seamlessly. It also
 //! enables further abstractions to be built over for trees.
 //!
-//! ## Automatisation
+//! ## Automation
 //! If you are implementing a tree, `Treelike` only requires you to implement two methods on
 //! your nodes, `content` to return its contents and `children` to list its children.
 //!
@@ -28,21 +28,19 @@ pub mod example;
 /// only [children][Treelike::children] and [content][Treelike::content] need to be implemented.
 ///
 /// Should probably be implemented on references of the node-type,
-/// unless your node itself is already Copy.
-/// In case you implement Treelike directly on your Type, you might need to implement [Clone] and
-/// [Copy] manually to avoid placing [Clone] and [Copy]-bounds on its type parameters, which is
-/// what derive does.
+/// unless your node itself is already [Copy]. See [LinTree][examples::LinTree] for an example of
+/// that.
 ///
 /// # no_std note
 /// The `callback_*` functions allow operating on the trees without allocations in a
-/// no_std-compatible way by calling a provided callback function on each visited element.
-/// This is a bit unwieldy. Additional restrictions those are listed in the no_std notes for each function.
+/// no_std-compatible way by calling a provided function on each visited element.
+/// This is a bit unwieldy. Additional restrictions are listed in the no_std notes for each function.
 ///
 /// The `iter_*` functions allocate, but return an [Iterator], providing a more comfortable
 /// interface.
 ///
 /// # Graph warning
-/// If you implement [Treelike] for anything more copmlex then a DAG you will run into infinite
+/// If you implement [Treelike] for anything more complex then a DAG you will run into infinite
 /// loops with the provided methods. Make sure to avoid loops or override.
 pub trait Treelike: Sized + Copy {
 	/// The content of the current node.
@@ -62,10 +60,10 @@ pub trait Treelike: Sized + Copy {
 	/// as impl Trait is not (yet) usable in Traits.
 	fn children(self) -> Self::ChildIterator;
 
-	/// Returns leftmost direct child of this Node. Mostly usefull for binary trees.
+	/// Returns leftmost direct child of this Node. Mostly useful for binary trees.
 	fn left(self) -> Option<Self> { self.children().next() }
 
-	/// Returns rightmost direct child of this Node. Mostly usefull for binary trees.
+	/// Returns rightmost direct child of this Node. Mostly useful for binary trees.
 	fn right(self) -> Option<Self> { self.children().last() }
 
 	/// Has to produce this nodes [Content][Treelike::Content].
@@ -90,7 +88,7 @@ pub trait Treelike: Sized + Copy {
 	}
 
 	/// Traverses the tree depth first, post order,
-	/// i.e. chilrdens contents are visited before their parents.
+	/// i.e. children's contents are visited before their parents.
 	///
 	/// The provided callback gets called on each visited node.
 	///
@@ -120,13 +118,13 @@ pub trait Treelike: Sized + Copy {
 	/// node.callback_dft(
 	///     |content, depth| {dbg!((content, depth));},
 	///     (|content, depth, child| **content != 4 && depth <= 1)
-	/// #   //FIXME: i do not understand why this cast is needed
+	/// #   //FIXME: I do not understand why this cast is needed
 	///     as for<'r, 's> fn(&'r &usize, usize, &'s LinTree<'_, usize>) -> _,
 	///     )
 	/// ```
 	///
 	/// # no_std note
-	/// A stack is nescesary for depth-first traversals. This method uses the call-stack to get
+	/// A stack is necessary for depth-first traversals. This method uses the call-stack to get
 	/// around not using allocations. This should not cause additional runtime costs.
 	fn callback_dft<CB: FnMut(Self::Content, usize), F: FilterBuilder<Self>>(
 		self,
@@ -137,7 +135,7 @@ pub trait Treelike: Sized + Copy {
 	}
 
 	/// like [callback_dft][Treelike::callback_dft] but the parents content is visited before
-	/// the childrens
+	/// the children's.
 	fn callback_dft_pre<CB: FnMut(Self::Content, usize), F: FilterBuilder<Self>>(
 		self,
 		callback: CB,
@@ -160,17 +158,17 @@ pub trait Treelike: Sized + Copy {
 	/// assert_eq!(&order, &base);
 	/// ```
 	///
-	/// # Performane warning
+	/// # Performance warning
 	/// The default implementation is no_std-compatible, using no allocations. It pays a
-	/// substantial performace price for that.
+	/// substantial performance price for that.
 	/// Specifically each node is visited `depth - total_depth` times.
 	///
-	/// Custom implentations are able and encouraged to override this if possible.
+	/// Custom implementations are able and encouraged to override this if possible.
 	/// LinTree for example could replace this with simply iterating over its slice.
 	///
 	/// # no_std Note
-	/// A queue is nescesary for breadth-first traversals. This method repeatedly traverses to
-	/// deeper and deeper depths. This causes additional runitme costs.
+	/// A queue is necessary for breadth-first traversals. This method repeatedly traverses to
+	/// deeper and deeper depths. This causes additional runtime costs.
 	fn callback_bft<CB: FnMut(Self::Content, usize)>(self, mut callback: CB) {
 		let mut depth = 0;
 		let mut count = 0;
@@ -193,7 +191,7 @@ pub trait Treelike: Sized + Copy {
 	}
 
 	//TODO: dfs
-	//TODO: how do i build in-order traversals for trees with more then 2 children? maybe first
+	//TODO: how do I build in-order traversals for trees with more then 2 children? maybe first
 	//child, content, other children
 }
 
@@ -269,7 +267,7 @@ pub struct PseudoCurry<T: Treelike, F: Fn(&T::Content, usize, &T) -> bool> {
 }
 
 //FIXME: this should not contain anonymous lifetimes because that forces casts down the line.
-//but if i try to introduce lifetimes i get "unconstrained lifetime parameter (E0207)" even though
+//but if I try to introduce lifetimes I get "unconstrained lifetime parameter (E0207)" even though
 //the lifetime is clearly used in F...
 impl<T: Treelike, F: Copy + Fn(&T::Content, usize, &T) -> bool> FilterBuilder<T> for F {
 	type Filter = PseudoCurry<T, F>;
