@@ -73,6 +73,9 @@ impl<'a, T: core::fmt::Debug> Treelike for LinTree<'a, T> {
 			callback(content, depth as usize);
 		}
 	}
+
+	//TODO could also implement filtered bft, but that requires itertools group_by. put that in
+	//as an optional dependency maybe
 }
 
 #[test]

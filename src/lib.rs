@@ -208,7 +208,7 @@ pub trait Treelike: Sized + Copy {
 
 	//TODO: how do I build in-order traversals for trees with more then 2 children? maybe first
 	//child, content, other children
-	//TODO: iteration-traversals/searches
+	//TODO: iter_dft_pre iter_bft
 
 	#[cfg(feature = "std")]
 	fn iter_dft<F: FilterBuilder<Self>>(self, filter: F) -> DFT<Self, F> { DFT::new(self, filter) }
@@ -364,6 +364,92 @@ impl<T: Treelike, F: FilterBuilder<T>> Iterator for DFT<T, F> {
 		} else {
 			// else this node is done and we return the content.
 			Some(node.content())
+		}
+	}
+}
+
+//FIXME: test these implementations and add methods on Treelike
+#[cfg(feature = "std")]
+pub struct DFTP<T: Treelike, F: FilterBuilder<T>> {
+	stack: Vec<F::Filter>,
+	filter: F,
+	cur: Option<T::Content>,
+}
+
+#[cfg(feature = "std")]
+impl<T: Treelike, F: FilterBuilder<T>> DFTP<T, F> {
+	fn new(treelike: T, filter: F) -> Self {
+		let stack = Vec::new();
+		let mut s = Self {
+			stack,
+			filter,
+			cur: None,
+		};
+		s.push(treelike);
+		s
+	}
+	fn push(&mut self, t: T) {
+		let filtered = self
+			.filter
+			.build(t.content(), self.stack.len(), t.children());
+		self.stack.push(filtered);
+		self.cur = Some(t.content());
+	}
+}
+
+#[cfg(feature = "std")]
+impl<T: Treelike, F: FilterBuilder<T>> Iterator for DFTP<T, F> {
+	type Item = T::Content;
+	fn next(&mut self) -> Option<Self::Item> {
+		self.cur.take().or_else(|| {
+			let mut children = self.stack.pop()?;
+			if let Some(child) = children.next() {
+				// children is not empty yeet, put it back and push child for next
+				// iteration
+				self.stack.push(children);
+				self.push(child);
+			}
+			self.next()
+		})
+	}
+}
+
+#[cfg(feature = "std")]
+use std::collections::VecDeque;
+#[cfg(feature = "std")]
+// does not return the root nodes content, combine with chain!
+pub struct BFT<T: Treelike, F: FilterBuilder<T>> {
+	queue: VecDeque<(F::Filter, usize)>,
+	filter: F,
+}
+
+#[cfg(feature = "std")]
+impl<T: Treelike, F: FilterBuilder<T>> BFT<T, F> {
+	fn new(treelike: T, filter: F) -> Self {
+		let queue = VecDeque::new();
+		let mut s = Self { queue, filter };
+		s.push(treelike, 0);
+		s
+	}
+
+	fn push(&mut self, t: T, depth: usize) {
+		let filtered = self.filter.build(t.content(), depth, t.children());
+		self.queue.push_back((filtered, depth));
+	}
+}
+
+#[cfg(feature = "std")]
+impl<T: Treelike, F: FilterBuilder<T>> Iterator for BFT<T, F> {
+	type Item = T::Content;
+	fn next(&mut self) -> Option<Self::Item> {
+		let (mut children, depth) = self.queue.pop_front()?;
+
+		if let Some(child) = children.next() {
+			self.queue.push_front((children, depth));
+			self.push(child, depth + 1);
+			Some(child.content())
+		} else {
+			self.next()
 		}
 	}
 }
