@@ -201,9 +201,8 @@ fn callback_dft<T: Treelike, CB: FnMut(T::Content, usize), F: FilterBuilder<T>>(
 	f: F,
 	depth: usize,
 ) -> CB {
-	let filter = f.build(t.content(), depth);
-
-	for child in t.children().filter(|t| filter.filter(t)) {
+	let filter = f.build(t.content(), depth, t.children());
+	for child in filter {
 		cb = callback_dft(child, cb, f, depth + 1)
 	}
 
@@ -219,8 +218,8 @@ fn callback_dft_pre<T: Treelike, CB: FnMut(T::Content, usize), F: FilterBuilder<
 ) -> CB {
 	cb(t.content(), depth);
 
-	let filter = f.build(t.content(), depth);
-	for child in t.children().filter(|t| filter.filter(t)) {
+	let filter = f.build(t.content(), depth, t.children());
+	for child in filter {
 		cb = callback_dft_pre(child, cb, f, depth + 1)
 	}
 
@@ -241,46 +240,66 @@ fn callback_bft<T: Treelike, CB: FnMut(T::Content)>(t: T, mut callback: CB, dept
 }
 
 pub trait FilterBuilder<T: Treelike>: Copy {
-	type Filter: Filter<T>;
-
-	fn build(self, content: T::Content, depth: usize) -> Self::Filter;
-}
-
-pub trait Filter<T: Treelike> {
-	fn filter(&self, child: &T) -> bool;
+	type Filter: Iterator<Item = T>;
+	fn build(self, content: T::Content, depth: usize, children: T::ChildIterator) -> Self::Filter;
 }
 
 impl<T: Treelike> FilterBuilder<T> for () {
-	type Filter = ();
+	type Filter = T::ChildIterator;
 
-	fn build(self, _: T::Content, _: usize) -> () { () }
+	fn build(self, _: T::Content, _: usize, children: T::ChildIterator) -> Self::Filter { children }
 }
 
-impl<T: Treelike> Filter<T> for () {
-	fn filter(&self, _child: &T) -> bool { true }
-}
-
-pub struct PseudoCurry<T: Treelike, F: Fn(&T::Content, usize, &T) -> bool> {
+pub struct PseudoCurry<T: Treelike, F: Fn(&T::Content, usize, &T) -> bool, I: Iterator<Item = T>> {
 	content: T::Content,
 	depth: usize,
 	inner_filter: F,
+	inner_iter: I,
+}
+
+impl<T: Treelike, F: Fn(&T::Content, usize, &T) -> bool, I: Iterator<Item = T>> Iterator
+	for PseudoCurry<T, F, I>
+{
+	type Item = T;
+	fn next(&mut self) -> Option<T> {
+		// this is basically just filter but with context
+		self.inner_iter
+			.next()
+			.filter(|child| (self.inner_filter)(&self.content, self.depth, &child))
+	}
 }
 
 //FIXME: this should not contain anonymous lifetimes because that forces casts down the line.
 //but if I try to introduce lifetimes I get "unconstrained lifetime parameter (E0207)" even though
 //the lifetime is clearly used in F...
 impl<T: Treelike, F: Copy + Fn(&T::Content, usize, &T) -> bool> FilterBuilder<T> for F {
-	type Filter = PseudoCurry<T, F>;
+	type Filter = PseudoCurry<T, F, T::ChildIterator>;
 
-	fn build(self, content: T::Content, depth: usize) -> Self::Filter {
+	fn build(self, content: T::Content, depth: usize, children: T::ChildIterator) -> Self::Filter {
 		PseudoCurry {
 			content,
 			depth,
 			inner_filter: self,
+			inner_iter: children,
 		}
 	}
 }
 
-impl<T: Treelike, F: Fn(&T::Content, usize, &T) -> bool> Filter<T> for PseudoCurry<T, F> {
-	fn filter(&self, child: &T) -> bool { (self.inner_filter)(&self.content, self.depth, child) }
+#[derive(Clone, Copy)]
+pub struct M<T: Clone + Copy>(T);
+// any kind of Fn trait, even with incompatible arguments might be implemented on a single type
+// you can't have multiple implementations of a trait for multiple Fn-traits.
+// so we need to newtype-wrap it..
+//FIXME: https://github.com/rust-lang/rust/issues/60074
+impl<
+		T: Treelike,
+		I: Iterator<Item = T>,
+		F: Fn(&T::Content, usize, T::ChildIterator) -> I + Copy,
+	> FilterBuilder<T> for M<F>
+{
+	type Filter = I;
+
+	fn build(self, content: T::Content, depth: usize, children: T::ChildIterator) -> Self::Filter {
+		(self.0)(&content, depth, children)
+	}
 }
