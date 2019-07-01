@@ -40,10 +40,10 @@ impl<'a, T> Clone for LinTree<'a, T> {
 impl<'a, T: core::fmt::Debug> Treelike for LinTree<'a, T> {
 	type Content = &'a T;
 
-	type ChildIterator = std::iter::FlatMap<
-		std::iter::Zip<
-			std::iter::Chain<std::iter::Once<usize>, std::iter::Once<usize>>,
-			std::iter::Repeat<&'a [T]>,
+	type ChildIterator = core::iter::FlatMap<
+		core::iter::Zip<
+			core::iter::Chain<core::iter::Once<usize>, core::iter::Once<usize>>,
+			core::iter::Repeat<&'a [T]>,
 		>,
 		Option<LinTree<'a, T>>,
 		fn((usize, &'a [T])) -> Option<LinTree<'a, T>>,
@@ -52,7 +52,7 @@ impl<'a, T: core::fmt::Debug> Treelike for LinTree<'a, T> {
 	fn content(self) -> Self::Content { &self.slice[self.index] }
 
 	fn children(self) -> Self::ChildIterator {
-		use std::iter::{once, repeat};
+		use core::iter::{once, repeat};
 		let left = 2 * self.index + 1;
 		let right = 2 * self.index + 2;
 		once(left)
@@ -64,7 +64,7 @@ impl<'a, T: core::fmt::Debug> Treelike for LinTree<'a, T> {
 	/// This is also an example of overriding the [Treelike]s default implementations where
 	/// necessary. LinTree can provide breadth-first traversal with a simple iteration
 	fn callback_bft<CB: FnMut(Self::Content, usize)>(self, mut callback: CB) {
-		let usize_bits = (std::mem::size_of::<usize>() * 8) as u32;
+		let usize_bits = (core::mem::size_of::<usize>() * 8) as u32;
 		for (i, content) in self.slice.iter().enumerate().skip(self.index) {
 			// this is flooring log2 for integers
 			// find the first one by subtracting the bit-length from the leading_zeros

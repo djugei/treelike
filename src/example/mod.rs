@@ -2,9 +2,12 @@
 //! some inspiration.
 
 mod borrowtree;
-mod boxtree;
 mod lintree;
 
 pub use borrowtree::BorrowingBinaryTree;
-pub use boxtree::OwningBinaryTree;
 pub use lintree::LinTree;
+
+#[cfg(std)]
+mod boxtree;
+#[cfg(std)]
+pub use boxtree::OwningBinaryTree;
