@@ -7,7 +7,7 @@ mod lintree;
 pub use borrowtree::BorrowingBinaryTree;
 pub use lintree::LinTree;
 
-#[cfg(std)]
+#[cfg(feature = "std")]
 mod boxtree;
-#[cfg(std)]
+#[cfg(feature = "std")]
 pub use boxtree::OwningBinaryTree;

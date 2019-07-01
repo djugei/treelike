@@ -1,4 +1,4 @@
-#![cfg(std)]
+#![cfg(feature = "std")]
 use crate::Treelike;
 
 /// A basic binary tree that stores its children in [Box]-es on the heap.
