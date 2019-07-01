@@ -209,6 +209,9 @@ pub trait Treelike: Sized + Copy {
 	//TODO: how do I build in-order traversals for trees with more then 2 children? maybe first
 	//child, content, other children
 	//TODO: iteration-traversals/searches
+
+	#[cfg(feature = "std")]
+	fn iter_dft<F: FilterBuilder<Self>>(self, filter: F) -> DFT<Self, F> { DFT::new(self, filter) }
 }
 
 fn callback_dft<T: Treelike, CB: FnMut(T::Content, usize), F: FilterBuilder<T>>(
@@ -323,5 +326,44 @@ impl<
 
 	fn build(self, content: T::Content, depth: usize, children: T::ChildIterator) -> Self::Filter {
 		(self.0)(&content, depth, children)
+	}
+}
+
+#[cfg(feature = "std")]
+pub struct DFT<T: Treelike, F: FilterBuilder<T>> {
+	stack: Vec<(T, F::Filter)>,
+	filter: F,
+}
+
+#[cfg(feature = "std")]
+impl<T: Treelike, F: FilterBuilder<T>> DFT<T, F> {
+	fn new(treelike: T, filter: F) -> Self {
+		let stack = Vec::new();
+		let mut s = Self { stack, filter };
+		s.push(treelike);
+		s
+	}
+	fn push(&mut self, t: T) {
+		let filtered = self
+			.filter
+			.build(t.content(), self.stack.len(), t.children());
+		self.stack.push((t, filtered));
+	}
+}
+
+#[cfg(feature = "std")]
+impl<T: Treelike, F: FilterBuilder<T>> Iterator for DFT<T, F> {
+	type Item = T::Content;
+	fn next(&mut self) -> Option<Self::Item> {
+		let (node, mut children) = self.stack.pop()?;
+		// if we still have children left to visit, visit those first
+		if let Some(child) = children.next() {
+			self.stack.push((node, children));
+			self.push(child);
+			self.next()
+		} else {
+			// else this node is done and we return the content.
+			Some(node.content())
+		}
 	}
 }

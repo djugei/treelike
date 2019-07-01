@@ -91,11 +91,23 @@ fn depth_test() {
 }
 
 #[test]
-fn lintreetest() {
+fn basic_test() {
 	let base = [3, 4, 5, 6, 7];
 	let root = LinTree::new(0, &base);
 
 	let mut state = Vec::new();
 	root.callback_dft(|val, _depth| state.push(*val), ());
 	assert_eq!(vec![6, 7, 4, 5, 3], state);
+}
+
+#[test]
+fn iter_test() {
+	let base = [0, (1), 2, (3), 4, 5, 6, (7), 8, 9, 10, 11, 12, 13, 14, (15)];
+	let root = LinTree::new(0, &base);
+
+	let mut state = Vec::new();
+	root.callback_dft(|val, _depth| state.push(*val), ());
+
+	let iter_state: Vec<_> = root.iter_dft(()).cloned().collect();
+	assert_eq!(iter_state, state);
 }
