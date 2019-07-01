@@ -28,7 +28,7 @@ pub mod example;
 /// only [children][Treelike::children] and [content][Treelike::content] need to be implemented.
 ///
 /// Should probably be implemented on references of the node-type,
-/// unless your node itself is already [Copy]. See [LinTree][examples::LinTree] for an example of
+/// unless your node itself is already [Copy]. See [LinTree][example::LinTree] for an example of
 /// that.
 ///
 /// # no_std note
@@ -42,6 +42,10 @@ pub mod example;
 /// # Graph warning
 /// If you implement [Treelike] for anything more complex then a DAG you will run into infinite
 /// loops with the provided methods. Make sure to avoid loops or override.
+///
+/// # Traversals and searches
+/// Most traversals take a Filter attribute. By passing () you get a pure traversal. By filtering
+/// you get a search.
 pub trait Treelike: Sized + Copy {
 	/// The content of the current node.
 	///
@@ -164,12 +168,22 @@ pub trait Treelike: Sized + Copy {
 	/// Specifically each node is visited `depth - total_depth` times.
 	///
 	/// Custom implementations are able and encouraged to override this if possible.
-	/// LinTree for example could replace this with simply iterating over its slice.
+	/// [LinTree][example::LinTree] for example replaces this iterating over its slice.
 	///
 	/// # no_std Note
 	/// A queue is necessary for breadth-first traversals. This method repeatedly traverses to
 	/// deeper and deeper depths. This causes additional runtime costs.
-	fn callback_bft<CB: FnMut(Self::Content, usize)>(self, mut callback: CB) {
+	fn callback_bft<CB: FnMut(Self::Content, usize)>(self, callback: CB) {
+		self.callback_bft_filtered(callback, ())
+	}
+
+	/// Like [callback_bft][Treelike::callback_bft] but allows filtering, thereby disallowing some
+	/// optimizations.
+	fn callback_bft_filtered<CB: FnMut(Self::Content, usize), F: FilterBuilder<Self>>(
+		self,
+		mut callback: CB,
+		filter: F,
+	) {
 		let mut depth = 0;
 		let mut count = 0;
 
@@ -180,7 +194,9 @@ pub trait Treelike: Sized + Copy {
 					count += 1;
 					callback(content, depth)
 				},
+				filter,
 				depth,
+				0,
 			);
 			if count == 0 {
 				break;
@@ -190,9 +206,9 @@ pub trait Treelike: Sized + Copy {
 		}
 	}
 
-	//TODO: dfs
 	//TODO: how do I build in-order traversals for trees with more then 2 children? maybe first
 	//child, content, other children
+	//TODO: iteration-traversals/searches
 }
 
 fn callback_dft<T: Treelike, CB: FnMut(T::Content, usize), F: FilterBuilder<T>>(
@@ -226,14 +242,20 @@ fn callback_dft_pre<T: Treelike, CB: FnMut(T::Content, usize), F: FilterBuilder<
 	cb
 }
 
-fn callback_bft<T: Treelike, CB: FnMut(T::Content)>(t: T, mut callback: CB, depth: usize) -> CB {
-	if depth == 0 {
+fn callback_bft<T: Treelike, CB: FnMut(T::Content), F: FilterBuilder<T>>(
+	t: T,
+	mut callback: CB,
+	f: F,
+	limit: usize,
+	depth: usize,
+) -> CB {
+	if depth == limit {
 		callback(t.content());
 		return callback;
 	}
 
 	for child in t.children() {
-		callback = callback_bft(child, callback, depth - 1)
+		callback = callback_bft(child, callback, f, limit, depth + 1)
 	}
 
 	callback
