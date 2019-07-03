@@ -114,3 +114,27 @@ fn iter_test() {
 	let iter_state: Vec<_> = root.iter_dft(()).cloned().collect();
 	assert_eq!(iter_state, state);
 }
+
+#[test]
+fn dft_pre_test() {
+	let base = [0, (1), 2, (3), 4, 5, 6, (7), 8, 9, 10, 11, 12, 13, 14, (15)];
+	let root = LinTree::new(0, &base);
+
+	let mut state = Vec::new();
+	root.callback_dft_pre(|val, _depth| state.push(*val), ());
+
+	let iter_state: Vec<_> = root.iter_dft_pre(()).cloned().collect();
+	assert_eq!(iter_state, state);
+}
+
+#[test]
+fn bft_pre_test() {
+	let base = [0, (1), 2, (3), 4, 5, 6, (7), 8, 9, 10, 11, 12, 13, 14, (15)];
+	let root = LinTree::new(0, &base);
+
+	let mut state = Vec::new();
+	root.callback_bft(|val, _depth| state.push(*val));
+
+	let iter_state: Vec<_> = root.iter_bft(()).cloned().collect();
+	assert_eq!(iter_state, state);
+}

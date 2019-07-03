@@ -212,7 +212,21 @@ pub trait Treelike: Sized + Copy {
 
 	#[cfg(feature = "std")]
 	fn iter_dft<F: FilterBuilder<Self>>(self, filter: F) -> DFT<Self, F> { DFT::new(self, filter) }
+
+	#[cfg(feature = "std")]
+	fn iter_dft_pre<F: FilterBuilder<Self>>(self, filter: F) -> DFTP<Self, F> {
+		DFTP::new(self, filter)
+	}
+
+	#[cfg(feature = "std")]
+	fn iter_bft<F: FilterBuilder<Self>>(
+		self,
+		filter: F,
+	) -> Chain<Once<Self::Content>, BFT<Self, F>> {
+		once(self.content()).chain(BFT::new(self, filter))
+	}
 }
+use core::iter::{once, Chain, Once};
 
 fn callback_dft<T: Treelike, CB: FnMut(T::Content, usize), F: FilterBuilder<T>>(
 	t: T,
