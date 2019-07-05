@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(test), no_std)]
 
 //! This crate tries to provide a common trait for all kinds of trees. Two reasons for that:
 //!
@@ -18,6 +18,14 @@
 //! This crate tries to stay no_std compatible, but provides more functionality if allocations are
 //! available. The relevant types and methods contain a no_std section to discuss functionality and
 //! limitations.
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+#[cfg(feature = "alloc")]
+use alloc::collections::VecDeque;
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
 
 pub mod example;
 
@@ -108,7 +116,12 @@ pub trait Treelike: Sized + Copy {
 	/// # use treelike::Treelike;
 	/// # let base = [3, 4, 5, 6, 7];
 	/// # let node = LinTree::new(0, &base);
-	/// node.callback_dft(|content, depth| {dbg!((content, depth));}, ())
+	/// node.callback_dft(
+	/// 	|content, depth| {
+	/// 		dbg!((content, depth));
+	/// 		},
+	/// 	(),
+	/// 	)
 	/// ```
 	///
 	/// Pass an  `Fn(Self::Content, depth: usize, child: Self) -> bool` to filter.
@@ -120,11 +133,13 @@ pub trait Treelike: Sized + Copy {
 	/// # let base = [3usize, 4, 5, 6, 7];
 	/// # let node = LinTree::new(0, &base);
 	/// node.callback_dft(
-	///     |content, depth| {dbg!((content, depth));},
-	///     (|content, depth, child| **content != 4 && depth <= 1)
+	/// 	|content, depth| {
+	/// 		dbg!((content, depth));
+	/// 		},
+	/// 	(|content, depth, child| **content != 4 && depth <= 1)
 	/// #   //FIXME: I do not understand why this cast is needed
 	///     as for<'r, 's> fn(&'r &usize, usize, &'s LinTree<'_, usize>) -> _,
-	///     )
+	/// 	)
 	/// ```
 	///
 	/// # no_std note
@@ -208,17 +223,16 @@ pub trait Treelike: Sized + Copy {
 
 	//TODO: how do I build in-order traversals for trees with more then 2 children? maybe first
 	//child, content, other children
-	//TODO: iter_dft_pre iter_bft
 
-	#[cfg(feature = "std")]
+	#[cfg(feature = "alloc")]
 	fn iter_dft<F: FilterBuilder<Self>>(self, filter: F) -> DFT<Self, F> { DFT::new(self, filter) }
 
-	#[cfg(feature = "std")]
+	#[cfg(feature = "alloc")]
 	fn iter_dft_pre<F: FilterBuilder<Self>>(self, filter: F) -> DFTP<Self, F> {
 		DFTP::new(self, filter)
 	}
 
-	#[cfg(feature = "std")]
+	#[cfg(feature = "alloc")]
 	fn iter_bft<F: FilterBuilder<Self>>(
 		self,
 		filter: F,
@@ -343,13 +357,13 @@ impl<
 	}
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 pub struct DFT<T: Treelike, F: FilterBuilder<T>> {
 	stack: Vec<(T, F::Filter)>,
 	filter: F,
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl<T: Treelike, F: FilterBuilder<T>> DFT<T, F> {
 	fn new(treelike: T, filter: F) -> Self {
 		let stack = Vec::new();
@@ -365,7 +379,7 @@ impl<T: Treelike, F: FilterBuilder<T>> DFT<T, F> {
 	}
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl<T: Treelike, F: FilterBuilder<T>> Iterator for DFT<T, F> {
 	type Item = T::Content;
 	fn next(&mut self) -> Option<Self::Item> {
@@ -383,14 +397,14 @@ impl<T: Treelike, F: FilterBuilder<T>> Iterator for DFT<T, F> {
 }
 
 //FIXME: test these implementations and add methods on Treelike
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 pub struct DFTP<T: Treelike, F: FilterBuilder<T>> {
 	stack: Vec<F::Filter>,
 	filter: F,
 	cur: Option<T::Content>,
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl<T: Treelike, F: FilterBuilder<T>> DFTP<T, F> {
 	fn new(treelike: T, filter: F) -> Self {
 		let stack = Vec::new();
@@ -411,7 +425,7 @@ impl<T: Treelike, F: FilterBuilder<T>> DFTP<T, F> {
 	}
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl<T: Treelike, F: FilterBuilder<T>> Iterator for DFTP<T, F> {
 	type Item = T::Content;
 	fn next(&mut self) -> Option<Self::Item> {
@@ -428,16 +442,14 @@ impl<T: Treelike, F: FilterBuilder<T>> Iterator for DFTP<T, F> {
 	}
 }
 
-#[cfg(feature = "std")]
-use std::collections::VecDeque;
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 // does not return the root nodes content, combine with chain!
 pub struct BFT<T: Treelike, F: FilterBuilder<T>> {
 	queue: VecDeque<(F::Filter, usize)>,
 	filter: F,
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl<T: Treelike, F: FilterBuilder<T>> BFT<T, F> {
 	fn new(treelike: T, filter: F) -> Self {
 		let queue = VecDeque::new();
@@ -452,7 +464,7 @@ impl<T: Treelike, F: FilterBuilder<T>> BFT<T, F> {
 	}
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl<T: Treelike, F: FilterBuilder<T>> Iterator for BFT<T, F> {
 	type Item = T::Content;
 	fn next(&mut self) -> Option<Self::Item> {

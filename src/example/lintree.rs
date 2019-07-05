@@ -78,8 +78,11 @@ impl<'a, T: core::fmt::Debug> Treelike for LinTree<'a, T> {
 	//as an optional dependency maybe
 }
 
+#[cfg(feature = "test")]
 #[test]
 fn depth_test() {
+	extern crate alloc;
+	use alloc::vec::Vec;
 	let base = [0, (1), 2, (3), 4, 5, 6, (7), 8, 9, 10, 11, 12, 13, 14, (15)];
 
 	let root = LinTree::new(0, &base);
@@ -95,16 +98,20 @@ fn depth_test() {
 
 #[test]
 fn basic_test() {
+	extern crate alloc;
+	use alloc::vec::Vec;
 	let base = [3, 4, 5, 6, 7];
 	let root = LinTree::new(0, &base);
 
 	let mut state = Vec::new();
 	root.callback_dft(|val, _depth| state.push(*val), ());
-	assert_eq!(vec![6, 7, 4, 5, 3], state);
+	assert_eq!(alloc::vec![6, 7, 4, 5, 3], state);
 }
 
+#[cfg(feature = "alloc")]
 #[test]
 fn iter_test() {
+	use alloc::vec::Vec;
 	let base = [0, (1), 2, (3), 4, 5, 6, (7), 8, 9, 10, 11, 12, 13, 14, (15)];
 	let root = LinTree::new(0, &base);
 
@@ -115,8 +122,10 @@ fn iter_test() {
 	assert_eq!(iter_state, state);
 }
 
+#[cfg(feature = "alloc")]
 #[test]
 fn dft_pre_test() {
+	use alloc::vec::Vec;
 	let base = [0, (1), 2, (3), 4, 5, 6, (7), 8, 9, 10, 11, 12, 13, 14, (15)];
 	let root = LinTree::new(0, &base);
 
@@ -127,8 +136,10 @@ fn dft_pre_test() {
 	assert_eq!(iter_state, state);
 }
 
+#[cfg(feature = "alloc")]
 #[test]
 fn bft_pre_test() {
+	use alloc::vec::Vec;
 	let base = [0, (1), 2, (3), 4, 5, 6, (7), 8, 9, 10, 11, 12, 13, 14, (15)];
 	let root = LinTree::new(0, &base);
 

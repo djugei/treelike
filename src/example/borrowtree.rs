@@ -30,6 +30,8 @@ impl<'a, TreeCont> Treelike for &'a BorrowingBinaryTree<'a, TreeCont> {
 
 #[test]
 fn borrowing_tree_works() {
+	extern crate alloc;
+	use alloc::vec::Vec;
 	let mut a: BorrowingBinaryTree<'_, usize> = Default::default();
 	a.content = 0;
 
@@ -51,7 +53,7 @@ fn borrowing_tree_works() {
 
 	let mut state = Vec::new();
 	a.callback_dft(|val, _depth| state.push(*val), ());
-	assert_eq!(vec![1, 3, 2, 0], state);
+	assert_eq!(alloc::vec![1, 3, 2, 0], state);
 
 	let mut limited = Vec::new();
 	a.callback_dft(
@@ -59,13 +61,13 @@ fn borrowing_tree_works() {
 		(|_content, depth, _tree| depth == 0)
 			as for<'r, 's> fn(&'r &usize, usize, &'s &BorrowingBinaryTree<'_, usize>) -> _,
 	);
-	assert_eq!(vec![1, 2, 0], limited);
+	assert_eq!(alloc::vec![1, 2, 0], limited);
 }
 
 #[test]
 fn option_ref_size() {
 	assert_eq!(
-		std::mem::size_of::<Option<&usize>>(),
-		std::mem::size_of::<&usize>()
+		core::mem::size_of::<Option<&usize>>(),
+		core::mem::size_of::<&usize>()
 	);
 }

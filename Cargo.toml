@@ -11,5 +11,5 @@ repository = "https://github.com/djugei/treelike"
 
 
 [features]
-default = ["std"]
-std = []
+default = ["alloc"]
+alloc = []

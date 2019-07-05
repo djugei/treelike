@@ -1,5 +1,7 @@
-#![cfg(feature = "std")]
+#![cfg(feature = "alloc")]
+
 use crate::Treelike;
+use alloc::boxed::Box;
 
 /// A basic binary tree that stores its children in [Box]-es on the heap.
 /// Used to show off trees that own the complete data and don't rely on any backing storage.
@@ -44,7 +46,7 @@ fn default_works() {
 #[test]
 fn option_box_size() {
 	assert_eq!(
-		std::mem::size_of::<Option<Box<usize>>>(),
-		std::mem::size_of::<Box<usize>>()
+		core::mem::size_of::<Option<Box<usize>>>(),
+		core::mem::size_of::<Box<usize>>()
 	);
 }
