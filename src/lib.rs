@@ -22,6 +22,10 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-pub mod example;
 pub mod treelike;
 pub use crate::treelike::Treelike;
+
+pub mod treelike_mut;
+pub use crate::treelike_mut::TreelikeMut;
+
+pub mod example;
