@@ -1,6 +1,6 @@
 [package]
 name = "treelike"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["djugei <ddjugei@gmail.com>"]
 edition = "2018"
 description = "A trait to abstract over trees, and simplify implementing them, all in one handy crate"
