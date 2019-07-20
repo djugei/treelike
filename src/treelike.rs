@@ -10,7 +10,7 @@ use alloc::vec::Vec;
 /// only [children][Treelike::children] and [content][Treelike::content] need to be implemented.
 ///
 /// Should probably be implemented on references of the node-type,
-/// unless your node itself is already [Copy]. See [LinTree][example::LinTree] for an example of
+/// unless your node itself is already [Copy]. See [LinTree][crate::example::LinTree] for an example of
 /// that.
 ///
 /// # no_std note
@@ -157,7 +157,7 @@ pub trait Treelike: Sized + Copy {
 	/// Specifically each node is visited `depth - total_depth` times.
 	///
 	/// Custom implementations are able and encouraged to override this if possible.
-	/// [LinTree][example::LinTree] for example replaces this iterating over its slice.
+	/// [LinTree][crate::example::LinTree] for example replaces this iterating over its slice.
 	///
 	/// # no_std Note
 	/// A queue is necessary for breadth-first traversals. This method repeatedly traverses to

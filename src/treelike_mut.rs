@@ -16,7 +16,7 @@
 // also callback and filter are slightly incompatible due to taking references in case of mut
 //
 
-/// this trait is unfinished
+/// this trait is unfinished, pending design decisions
 pub trait TreelikeMut: Sized {
 	type Content;
 
