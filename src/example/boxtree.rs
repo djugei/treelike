@@ -32,7 +32,7 @@ impl<'a, TreeCont> Treelike for &'a OwningBinaryTree<TreeCont> {
 		fn(&Box<OwningBinaryTree<TreeCont>>) -> &OwningBinaryTree<TreeCont>,
 	>;
 
-	fn children(self) -> Self::ChildIterator { self.children.into_iter().flatten().map(reborrow) }
+	fn children(self) -> Self::ChildIterator { self.children.iter().flatten().map(reborrow) }
 }
 
 #[test]

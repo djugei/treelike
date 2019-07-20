@@ -25,7 +25,7 @@ impl<'a, TreeCont> Treelike for &'a BorrowingBinaryTree<'a, TreeCont> {
 		core::iter::Flatten<core::slice::Iter<'a, Option<&'a BorrowingBinaryTree<'a, TreeCont>>>>,
 	>;
 
-	fn children(self) -> Self::ChildIterator { self.children.into_iter().flatten().cloned() }
+	fn children(self) -> Self::ChildIterator { self.children.iter().flatten().cloned() }
 }
 
 #[test]
