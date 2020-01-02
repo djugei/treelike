@@ -55,22 +55,22 @@ pub trait Treelike: Sized + Copy {
 	/// Has to produce this nodes [Content][Treelike::Content].
 	fn content(self) -> Self::Content;
 
+    /// Finds the content of a leaf node based on a given traversal without backtracking.
+    fn leaf_by(mut self, mut f: impl FnMut(Self) -> Option<Self>) -> Self::Content {
+        while let Some(next) = f(self) {
+            self = next;
+        }
+        self.content()
+    }
+
 	/// Recursively traverses the tree to the very first/leftmost node.
 	fn first(self) -> Self::Content {
-		if let Some(next) = self.left() {
-			next.first()
-		} else {
-			self.content()
-		}
+        self.leaf_by(Self::left)
 	}
 
 	/// Recursively traverses the tree to the very last/rightmost node.
 	fn last(self) -> Self::Content {
-		if let Some(next) = self.right() {
-			next.last()
-		} else {
-			self.content()
-		}
+        self.leaf_by(Self::right)
 	}
 
 	/// Traverses the tree depth first, post order,
